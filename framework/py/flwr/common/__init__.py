@@ -36,6 +36,7 @@ from .record import ConfigRecord as ConfigRecord
 from .record import ConfigsRecord as ConfigsRecord
 from .record import MetricRecord as MetricRecord
 from .record import MetricsRecord as MetricsRecord
+from .record import MultiArrayRecord as MultiArrayRecord
 from .record import ParametersRecord as ParametersRecord
 from .record import RecordDict as RecordDict
 from .record import RecordSet as RecordSet
@@ -99,6 +100,7 @@ __all__ = [
     "Metrics",
     "MetricsAggregationFn",
     "MetricsRecord",
+    "MultiArrayRecord",
     "NDArray",
     "NDArrays",
     "Parameters",

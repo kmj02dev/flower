@@ -16,6 +16,7 @@
 
 
 import pprint
+from typing import Dict
 from dataclasses import dataclass, field
 
 from flwr.common import ArrayRecord, MetricRecord
@@ -81,6 +82,74 @@ class Result:
 
         return rep
 
+@dataclass
+class HeterogeneousResult:
+    """Data class carrying records generated during the execution of a strategy.
+
+    This class encapsulates the results of a federated learning strategy execution,
+    including the final global model parameters and metrics collected throughout
+    the federated training and evaluation (both federated and centralized) stages.
+
+    Attributes
+    ----------
+    node_states : Dict[int, ArrayRecord]
+        The final global model parameters. Contains the
+        aggregated model weights/parameters that resulted from the federated
+        learning process.
+    train_metrics_clientapp : dict[int, MetricRecord]
+        Training metrics collected from ClientApps, indexed by round number.
+        Contains aggregated metrics (e.g., loss, accuracy) from the training
+        phase of each federated learning round.
+    evaluate_metrics_clientapp : dict[int, MetricRecord]
+        Evaluation metrics collected from ClientApps, indexed by round number.
+        Contains aggregated metrics  (e.g. validation loss) from the evaluation
+        phase where ClientApps evaluate the global model on their local
+        validation/test data.
+    evaluate_metrics_serverapp : dict[int, MetricRecord]
+        Evaluation metrics generated at the ServerApp, indexed by round number.
+        Contains metrics from centralized evaluation performed by the ServerApp
+        (e.g., when the server evaluates the global model on a held-out dataset).
+    """
+
+    node_states: Dict[int, ArrayRecord] = field(default_factory=ArrayRecord)
+    train_metrics_clientapp: dict[int, MetricRecord] = field(default_factory=dict)
+    evaluate_metrics_clientapp: dict[int, MetricRecord] = field(default_factory=dict)
+    evaluate_metrics_serverapp: dict[int, MetricRecord] = field(default_factory=dict)
+
+    def __repr__(self) -> str:
+        """Create a representation of the Result instance."""
+        rep = ""
+        num_nodes = len(self.node_states)
+        if num_nodes > 0:
+            total_size_mb = sum(
+                len(array.data) 
+                for array_record in self.node_states.values() 
+                for array in array_record.values()
+            ) / (1024**2)
+            avg_arr_size = total_size_mb / num_nodes
+        else:
+            avg_arr_size = 0.0
+
+        rep += "Arrays:\n" + f"\tAverage ArrayRecord ({avg_arr_size:.3f} MB)\n" + "\n"
+        rep += (
+            "Aggregated ClientApp-side Train Metrics:\n"
+            + pprint.pformat(stringify_dict(self.train_metrics_clientapp), indent=2)
+            + "\n\n"
+        )
+
+        rep += (
+            "Aggregated ClientApp-side Evaluate Metrics:\n"
+            + pprint.pformat(stringify_dict(self.evaluate_metrics_clientapp), indent=2)
+            + "\n\n"
+        )
+
+        rep += (
+            "ServerApp-side Evaluate Metrics:\n"
+            + pprint.pformat(stringify_dict(self.evaluate_metrics_serverapp), indent=2)
+            + "\n"
+        )
+
+        return rep
 
 def format_value(val: MetricRecordValues) -> str:
     """Format a value as string, applying scientific notation for floats."""
