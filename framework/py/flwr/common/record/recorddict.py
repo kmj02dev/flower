@@ -25,11 +25,12 @@ from typing import TypeVar, cast
 from ..inflatable import InflatableObject, add_header_to_object_body, get_object_body
 from ..logger import log
 from .arrayrecord import ArrayRecord
+from .multiarrayrecord import MultiArrayRecord
 from .configrecord import ConfigRecord
 from .metricrecord import MetricRecord
 from .typeddict import TypedDict
 
-RecordType = ArrayRecord | MetricRecord | ConfigRecord
+RecordType = ArrayRecord | MetricRecord | ConfigRecord | MultiArrayRecord
 
 
 class _WarningTracker:
@@ -59,7 +60,7 @@ def _check_key(key: str) -> None:
 
 
 def _check_value(value: RecordType) -> None:
-    if not isinstance(value, (ArrayRecord | MetricRecord | ConfigRecord)):
+    if not isinstance(value, (ArrayRecord | MetricRecord | ConfigRecord | MultiArrayRecord)):
         raise TypeError(
             f"Expected `{ArrayRecord.__name__}`, `{MetricRecord.__name__}`, "
             f"or `{ConfigRecord.__name__}` but received "

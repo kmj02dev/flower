@@ -39,6 +39,8 @@ from .multikrum import MultiKrum
 from .qfedavg import QFedAvg
 from .result import Result
 from .strategy import Strategy
+from .dstrategy import DStrategy
+from .dfedavg import DFedAvg
 
 __all__ = [
     "Bulyan",
@@ -49,6 +51,7 @@ __all__ = [
     "FedAdagrad",
     "FedAdam",
     "FedAvg",
+    "DFedAvg",
     "FedAvgM",
     "FedMedian",
     "FedProx",
@@ -61,4 +64,5 @@ __all__ = [
     "QFedAvg",
     "Result",
     "Strategy",
+    "DStrategy",
 ]
