@@ -41,6 +41,7 @@ from ..utils import (
 class MlFramework(str, Enum):
     """Available frameworks."""
 
+    IMES = "iMES"
     PYTORCH = "PyTorch"
     TENSORFLOW = "TensorFlow"
     SKLEARN = "sklearn"
@@ -52,6 +53,12 @@ class MlFramework(str, Enum):
     FLOWERTUNE = "FlowerTune"
     BASELINE = "Flower Baseline"
     PYTORCH_LEGACY_API = "PyTorch (Legacy API, deprecated)"
+    
+
+class IMESFramework(str, Enum):
+    """Available frameworks for iMES."""
+
+    BASELINE = "Baseline"
 
 
 class LlmChallengeName(str, Enum):
@@ -322,6 +329,14 @@ def new(
         )
         llm_challenge_str = llm_challenge_value.lower()
 
+    imes_framework_str = None
+    if framework_str == MlFramework.IMES:
+        imes_framework_value = prompt_options(
+            "Please select LLM challenge by typing in the number",
+            sorted([challenge.value for challenge in IMESFramework]),
+        )
+        imes_framework_str = imes_framework_value.lower()
+        
     if framework_str == MlFramework.BASELINE:
         framework_str = "baseline"
 
@@ -394,6 +409,31 @@ def new(
         context["challenge_name"] = challenge_name
         context["num_clients"] = num_clients
         context["dataset_name"] = dataset_name
+    elif imes_framework_str:
+        files = {
+            ".gitignore": {"template": "app/.gitignore.tpl"},
+            "pyproject.toml": {"template": f"app/code/imes/{imes_framework_str}/pyproject.toml.tpl"},
+            "README.md": {"template": f"app/code/imes/{imes_framework_str}/README.md.tpl"},
+            f"{import_name}/__init__.py": {"template": "app/code/__init__.py.tpl"},
+            f"{import_name}/server_app.py": {
+                "template": f"app/code/imes/{imes_framework_str}/server_app.py.tpl"
+            },
+            f"{import_name}/client_app.py": {
+                "template": f"app/code/imes/{imes_framework_str}/client_app.py.tpl"
+            },
+            f"{import_name}/model.py": {
+                "template": f"app/code/imes/{imes_framework_str}/model.py.tpl"
+            },
+            f"{import_name}/dataset.py": {
+                "template": f"app/code/imes/{imes_framework_str}/dataset.py.tpl"
+            },
+            f"{import_name}/strategy.py": {
+                "template": f"app/code/imes/{imes_framework_str}/strategy.py.tpl"
+            },
+            f"{import_name}/utils.py": {
+                "template": f"app/code/imes/{imes_framework_str}/utils.py.tpl"
+            },
+        }
     else:
         files = {
             ".gitignore": {"template": "app/.gitignore.tpl"},
